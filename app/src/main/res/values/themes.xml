@@ -5,7 +5,7 @@
         <item name="colorSecondary">#FFCF40</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowBackground">#F8F9FC</item>
+        <item name="android:windowBackground">#F7F6F2</item>
         <item name="android:colorAccent">#1C316E</item>
     </style>
     <style name="Theme.StudentInfoApp" parent="Base.Theme.StudentInfoApp" />
