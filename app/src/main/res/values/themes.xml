@@ -1,16 +1,16 @@
 <resources>
-    <style name="Base.Theme.StudentInfoApp" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">#FFCF40</item>
-        <item name="colorOnPrimary">#090F1C</item>
-        <item name="colorSurface">#0F1829</item>
-        <item name="colorOnSurface">#F2F5FC</item>
-        <item name="colorOnSurfaceVariant">#A9B4C8</item>
-        <item name="colorError">#FFB4AB</item>
-        <item name="colorSecondary">#FFCF40</item>
+    <style name="Base.Theme.StudentInfoApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#18354B</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSurface">#FCFDFD</item>
+        <item name="colorOnSurface">#152C3D</item>
+        <item name="colorOnSurfaceVariant">#526673</item>
+        <item name="colorError">#A32632</item>
+        <item name="colorSecondary">#526673</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowBackground">#090F1C</item>
-        <item name="android:colorAccent">#FFCF40</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#FCFDFD</item>
+        <item name="android:colorAccent">#18354B</item>
     </style>
     <style name="Theme.StudentInfoApp" parent="Base.Theme.StudentInfoApp" />
 </resources>

@@ -1,0 +1,38 @@
+<resources>
+    <string name="profile_portal">STUDENT PORTAL</string>
+    <string name="profile_title">My profile</string>
+    <string name="profile_description">View your student information and academic record.</string>
+    <string name="profile_student_name">Student name</string>
+    <string name="profile_academics">Academic information</string>
+    <string name="profile_student_number">Student number</string>
+    <string name="profile_program">Academic program</string>
+    <string name="profile_year">Year level</string>
+    <string name="profile_sign_out">Sign out</string>
+    <string name="profile_footer">Lab Activity</string>
+
+    <style name="Widget.StudentInfoApp.ProfileLabel" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#526673</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="Widget.StudentInfoApp.ProfileValue" parent="Widget.StudentInfoApp.ProfileLabel">
+        <item name="android:textColor">#152C3D</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="Widget.StudentInfoApp.ProfileCard" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:background">@drawable/profile_card</item>
+    </style>
+    <style name="Widget.StudentInfoApp.ProfileDivider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:background">#D9E2E8</item>
+    </style>
+</resources>

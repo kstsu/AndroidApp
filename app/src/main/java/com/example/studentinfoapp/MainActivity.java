@@ -2,10 +2,6 @@ package com.example.studentinfoapp;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -15,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -33,13 +30,13 @@ import com.google.android.material.textfield.TextInputLayout;
 
 /** A self-contained, offline student portal demo. */
 public class MainActivity extends AppCompatActivity {
-    private static final int BLUE = Color.rgb(28, 49, 110);
-    private static final int YELLOW = Color.rgb(255, 207, 64);
-    private static final int INK = Color.rgb(242, 245, 252);
-    private static final int MUTED = Color.rgb(169, 180, 200);
-    private static final int CANVAS = Color.rgb(9, 15, 28);
-    private static final int SURFACE = Color.rgb(15, 24, 41);
-    private static final int BORDER = Color.rgb(54, 68, 90);
+    private static final int BLUE = 0xFF18354B;
+    private static final int INK = 0xFF152C3D;
+    private static final int MUTED = 0xFF526673;
+    private static final int CANVAS = 0xFFFCFDFD;
+    private static final int SURFACE = 0xFFF0F4F6;
+    private static final int BORDER = 0xFFD9E2E8;
+    private static final int ERROR = 0xFFA32632;
     private StudentStore store;
     private LinearLayout content;
     private TextView message;
@@ -66,12 +63,11 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(out);
     }
 
-    private void page() {
+    private void page(int illustrationHeight) {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        GradientDrawable backdrop = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{Color.rgb(23, 35, 56), CANVAS, CANVAS});
-        root.setBackground(backdrop);
+        root.setBackgroundColor(CANVAS);
+        root.setFocusableInTouchMode(true);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.ime());
@@ -98,60 +94,124 @@ public class MainActivity extends AppCompatActivity {
         scroll.addView(frame, new ScrollView.LayoutParams(-1, -2));
         root.addView(scroll, new LinearLayout.LayoutParams(-1, -1));
         setContentView(root);
-        ViewCompat.getWindowInsetsController(root).setAppearanceLightStatusBars(false);
-        ViewCompat.getWindowInsetsController(root).setAppearanceLightNavigationBars(false);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightStatusBars(true);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightNavigationBars(true);
 
-        LinearLayout brand = new LinearLayout(this);
-        brand.setOrientation(LinearLayout.VERTICAL);
-        brand.setGravity(Gravity.CENTER);
-        View emblem = new PortalEmblem();
-        emblem.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        brand.addView(emblem, new LinearLayout.LayoutParams(dp(152), dp(132)));
-        TextView name = text("STUDENT PORTAL", 12, MUTED, true);
-        name.setLetterSpacing(0.16f);
-        name.setGravity(Gravity.CENTER);
-        brand.addView(name);
-        content.addView(brand, new LinearLayout.LayoutParams(-1, -2));
-        space(28);
+        TextView wordmark = text("STUDENT PORTAL", 14, BLUE, true);
+        wordmark.setGravity(Gravity.CENTER);
+        wordmark.setLetterSpacing(0.08f);
+        content.addView(wordmark, new LinearLayout.LayoutParams(-1, -2));
+        space(20);
+        if (illustrationHeight > 0) {
+            ImageView art = new ImageView(this);
+            art.setImageResource(R.drawable.portal_illustration);
+            art.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            art.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            content.addView(art, new LinearLayout.LayoutParams(-1, dp(illustrationHeight)));
+            space(20);
+        }
+        root.requestFocus();
     }
 
-    private void heading(String eyebrow, String title, String subtitle) {
-        TextView section = text(eyebrow, 12, MUTED, true);
-        section.setLetterSpacing(0.04f);
-        section.setGravity(Gravity.CENTER);
-        content.addView(section, new LinearLayout.LayoutParams(-1, -2));
-        space(10);
-        TextView display = text(title, 30, INK, true);
-        display.setGravity(Gravity.CENTER);
+    private void heading(String title, String subtitle) {
+        TextView display = text(title, 34, INK, true);
         display.setLetterSpacing(-0.02f);
         ViewCompat.setAccessibilityHeading(display, true);
         content.addView(display, new LinearLayout.LayoutParams(-1, -2));
         space(8);
         TextView summary = text(subtitle, 16, MUTED, false);
-        summary.setGravity(Gravity.CENTER);
         content.addView(summary, new LinearLayout.LayoutParams(-1, -2));
-        space(28);
+        space(24);
+    }
+
+    private void openLayout(int layout) {
+        setContentView(layout);
+        View root = ((android.view.ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            Insets edges = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            view.setPadding(edges.left, edges.top, edges.right, edges.bottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(root);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightStatusBars(true);
+        WindowCompat.getInsetsController(getWindow(), root).setAppearanceLightNavigationBars(true);
     }
 
     private void showLogin() {
         registering = false;
-        page();
-        TextView title = text("Welcome back", 30, INK, true);
-        title.setGravity(Gravity.CENTER);
-        ViewCompat.setAccessibilityHeading(title, true);
-        content.addView(title, new LinearLayout.LayoutParams(-1, -2));
-        space(8);
-        TextView description = text("Access your student profile and academic details.", 16, MUTED, false);
-        description.setGravity(Gravity.CENTER);
-        content.addView(description, new LinearLayout.LayoutParams(-1, -2));
-        space(28);
+        openLayout(R.layout.activity_login);
+        TextInputEditText number = findViewById(R.id.loginStudentNumber);
+        TextInputEditText password = findViewById(R.id.loginPassword);
+        TextInputLayout error = findViewById(R.id.loginPasswordLayout);
+        View submit = findViewById(R.id.loginButton);
+        submit.setOnClickListener(view -> {
+            hideKeyboard();
+            StudentStore.Student student = store.login(value(number), password.getText().toString());
+            if (student == null) error.setError("Student number or password is incorrect.");
+            else showProfile(student);
+        });
+        password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+        password.setOnEditorActionListener((view, action, event) ->
+                action == android.view.inputmethod.EditorInfo.IME_ACTION_DONE && submit.performClick());
+        findViewById(R.id.registerButton).setOnClickListener(view -> showRegister());
+        findViewById(R.id.sampleButton).setOnClickListener(view -> {
+            number.setText("2024-100001");
+            password.setText("Student@123");
+            error.setError(null);
+        });
+    }
+
+    private void showRegister() {
+        registering = true;
+        openLayout(R.layout.activity_student_info);
+        TextInputEditText name = findViewById(R.id.studentName);
+        TextInputEditText number = findViewById(R.id.studentNumber);
+        TextInputEditText program = findViewById(R.id.program);
+        TextInputEditText password = findViewById(R.id.registerPassword);
+        TextInputEditText confirm = findViewById(R.id.confirmPassword);
+        MaterialAutoCompleteTextView year = findViewById(R.id.yearLevel);
+        year.setSimpleItems(new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year"});
+        TextInputLayout error = findViewById(R.id.confirmPasswordLayout);
+        findViewById(R.id.saveStudentButton).setOnClickListener(view -> {
+            hideKeyboard();
+            String id = value(number), secret = password.getText().toString();
+            String level = year.getText().toString();
+            if (value(name).isEmpty() || id.isEmpty() || value(program).isEmpty() || level.isEmpty()) {
+                error.setError("Complete all student details.");
+            } else if (!id.matches("[A-Za-z0-9][A-Za-z0-9-]{3,29}")) {
+                error.setError("Use 4-30 letters, numbers or hyphens for your student number.");
+            } else if (store.exists(id)) {
+                error.setError("This student number already has an account.");
+            } else if (secret.length() < 8) {
+                error.setError("Use at least 8 characters for your password.");
+            } else if (!secret.equals(confirm.getText().toString())) {
+                error.setError("Your passwords do not match.");
+            } else {
+                showProfile(store.register(id, value(name), value(program), level, secret));
+            }
+        });
+        findViewById(R.id.clearStudentButton).setOnClickListener(view -> {
+            for (TextInputEditText field : new TextInputEditText[]{name, number, program, password, confirm}) field.setText("");
+            year.setText("", false);
+            error.setError(null);
+        });
+        findViewById(R.id.backToLogin).setOnClickListener(view -> {
+            hideKeyboard();
+            showLogin();
+        });
+    }
+
+    private void legacyLoginLayout() {
+        registering = false;
+        page(166);
+        heading("Welcome back", "Sign in to view your student information.");
         LinearLayout pageContent = content;
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         pageContent.addView(form);
         content = form;
-        TextInputEditText number = field("Student number", false, "2024-100001");
+        TextInputEditText number = field("Student number", false, "e.g. 2024-100001");
         TextInputEditText password = field("Password", true, "Enter your password");
         password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
         status();
@@ -176,35 +236,27 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
         content = pageContent;
-        space(16);
+        space(8);
         button("New student? Create an account", false, v -> showRegister());
-        space(20);
-        LinearLayout demo = panel();
-        demo.addView(text("Just exploring?", 16, INK, true));
-        addGap(demo, 8);
-        demo.addView(text("Student number: 2024-100001\nPassword: Student@123", 13, MUTED, false));
+        space(8);
+        View divider = new View(this);
+        divider.setBackgroundColor(BORDER);
+        content.addView(divider, new LinearLayout.LayoutParams(-1, dp(1)));
+        space(4);
         MaterialButton fill = makeButton("Use sample credentials", false);
         fill.setOnClickListener(v -> {
             number.setText("2024-100001"); password.setText("Student@123");
-            fill.setText("Sample filled · Sign in above");
-            number.requestFocus();
-            number.post(() -> number.requestRectangleOnScreen(
-                    new android.graphics.Rect(0, 0, number.getWidth(), number.getHeight()), false));
+            message.setVisibility(View.GONE);
+            fill.setText("Sample filled. Tap Sign in.");
         });
-        demo.addView(fill, new LinearLayout.LayoutParams(-1, dp(52)));
-        content.addView(demo);
+        content.addView(fill, new LinearLayout.LayoutParams(-1, -2));
         footer();
     }
 
-    private void showRegister() {
+    private void legacyRegistrationLayout() {
         registering = true;
-        page();
-        button("Back to sign in", false, v -> showLogin());
-        space(16);
-        heading("REGISTRATION", "Create an account",
-                "Enter your student information to get started.");
-        content.addView(text("Student details / All fields required", 14, INK, true));
-        space(20);
+        page(126);
+        heading("Create an account", "Enter your student details. All fields are required.");
         TextInputEditText name = field("Student name", false, "Full name");
         name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         TextInputEditText number = field("Student number", false, "e.g. 2024-100002");
@@ -218,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
         year.setPadding(dp(16), dp(16), dp(16), dp(16));
         year.setInputType(InputType.TYPE_NULL);
         year.setTextColor(INK);
+        year.setHintTextColor(MUTED);
         year.setTextSize(16);
         year.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year"}));
@@ -227,12 +280,8 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) yearLayout.getTag()).setLabelFor(year.getId());
         content.addView(yearLayout);
         space(16);
-        content.addView(text("Account security", 20, INK, true));
-        space(8);
-        content.addView(text("Choose a password with at least 8 characters.", 14, MUTED, false));
-        space(20);
         TextInputEditText password = field("Password", true, "At least 8 characters");
-        TextInputEditText confirm = field("Confirm password", true, null);
+        TextInputEditText confirm = field("Confirm password", true, "Re-enter your password");
         status();
         button("Create account", true, v -> {
             hideKeyboard();
@@ -263,33 +312,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void showProfile(StudentStore.Student student) {
         registering = false;
-        page();
-        heading("STUDENT OVERVIEW", "My profile",
-                "View your student information and academic record.");
+        openLayout(R.layout.activity_profile);
+        ((TextView) findViewById(R.id.profileName)).setText(student.name);
+        ((TextView) findViewById(R.id.profileNumber)).setText(student.number);
+        ((TextView) findViewById(R.id.profileProgram)).setText(student.program);
+        ((TextView) findViewById(R.id.profileYear)).setText(student.year);
+        findViewById(R.id.profileSignOut).setOnClickListener(view -> {
+            store.logout();
+            showLogin();
+        });
+    }
+
+    private void legacyProfileLayout(StudentStore.Student student) {
+        registering = false;
+        page(0);
+        heading("My profile", "View your student information and academic record.");
         LinearLayout identity = panel();
-        identity.setBackground(surface(Color.rgb(25, 42, 77), 20, BORDER));
-        identity.addView(text("STUDENT PROFILE", 12, YELLOW, true));
-        addGap(identity, 12);
-        identity.addView(text(student.name, 28, Color.WHITE, true));
-        addGap(identity, 8);
-        TextView studentId = text(student.number, 17, Color.WHITE, false);
-        studentId.setTypeface(Typeface.MONOSPACE);
-        identity.addView(studentId);
-        addGap(identity, 28);
-        identity.addView(text(student.program + "  /  " + student.year, 16, YELLOW, true));
+        identity.addView(text("Student name", 14, MUTED, false));
+        addGap(identity, 6);
+        identity.addView(text(student.name, 26, INK, true));
         content.addView(identity);
         space(28);
         content.addView(text("Academic information", 20, INK, true));
         space(16);
         LinearLayout details = panel();
         detail(details, "Student number", student.number, true);
-        detail(details, "Student name", student.name, true);
         detail(details, "Academic program", student.program, true);
         detail(details, "Year level", student.year, false);
         content.addView(details);
         space(20);
-        content.addView(text("These are the details associated with your account.", 13, MUTED, false));
-        space(28);
         button("Sign out", false, v -> {
             store.logout(); showLogin();
         });
@@ -316,13 +367,16 @@ public class MainActivity extends AppCompatActivity {
         content.addView(caption);
         space(8);
         layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-        layout.setBoxCornerRadii(dp(14), dp(14), dp(14), dp(14));
+        layout.setBoxCornerRadii(dp(24), dp(24), dp(24), dp(24));
         layout.setBoxBackgroundColor(SURFACE);
+        layout.setBoxStrokeWidth(0);
+        layout.setBoxStrokeWidthFocused(dp(2));
         layout.setBoxStrokeColorStateList(new ColorStateList(
-                new int[][]{new int[]{android.R.attr.state_focused}, new int[]{}},
-                new int[]{YELLOW, BORDER}));
+                new int[][]{new int[]{android.R.attr.state_focused},
+                        new int[]{android.R.attr.state_hovered}, new int[]{}},
+                new int[]{BLUE, BLUE, BORDER}));
         layout.setEndIconTintList(ColorStateList.valueOf(MUTED));
-        layout.setErrorTextColor(ColorStateList.valueOf(0xFFFFB4AB));
+        layout.setErrorTextColor(ColorStateList.valueOf(ERROR));
         layout.setTag(caption);
         layout.setDefaultHintTextColor(ColorStateList.valueOf(MUTED));
         layout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
@@ -341,6 +395,7 @@ public class MainActivity extends AppCompatActivity {
         edit.setPadding(dp(16), dp(16), dp(16), dp(16));
         edit.setInputType(InputType.TYPE_CLASS_TEXT | (password
                 ? InputType.TYPE_TEXT_VARIATION_PASSWORD : InputType.TYPE_TEXT_VARIATION_NORMAL));
+        edit.setTypeface(Typeface.DEFAULT);
         edit.setId(View.generateViewId());
         ((TextView) layout.getTag()).setLabelFor(edit.getId());
         if (placeholder != null) edit.setHint(placeholder);
@@ -353,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void status() {
-        message = text("", 14, 0xFFFFB4AB, false);
+        message = text("", 14, ERROR, false);
         message.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         message.setVisibility(View.GONE);
         content.addView(message);
@@ -383,14 +438,15 @@ public class MainActivity extends AppCompatActivity {
         button.setCornerRadius(dp(28));
         button.setElevation(0);
         button.setStateListAnimator(null);
-        button.setBackgroundTintList(ColorStateList.valueOf(primary ? YELLOW : Color.TRANSPARENT));
-        button.setTextColor(primary ? CANVAS : INK);
-        button.setRippleColor(ColorStateList.valueOf(0x331C316E));
-        if (!primary) {
-            button.setStrokeWidth(dp(1));
-            button.setStrokeColor(ColorStateList.valueOf(BORDER));
-        }
-        button.setMinimumHeight(dp(54));
+        button.setBackgroundTintList(ColorStateList.valueOf(primary ? BLUE : Color.TRANSPARENT));
+        button.setTextColor(primary ? Color.WHITE : BLUE);
+        button.setRippleColor(ColorStateList.valueOf(primary ? 0x33FFFFFF : 0x1918354B));
+        ColorStateList focus = new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_focused}, new int[]{}},
+                new int[]{primary ? Color.WHITE : BLUE, Color.TRANSPARENT});
+        button.setStrokeWidth(dp(2));
+        button.setStrokeColor(focus);
+        button.setMinimumHeight(dp(primary ? 54 : 48));
         button.setInsetTop(0);
         button.setInsetBottom(0);
         return button;
@@ -399,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
     private void button(String label, boolean primary, View.OnClickListener action) {
         MaterialButton button = makeButton(label, primary);
         button.setOnClickListener(action);
-        content.addView(button, new LinearLayout.LayoutParams(-1, dp(54)));
+        content.addView(button, new LinearLayout.LayoutParams(-1, -2));
     }
 
     private LinearLayout panel() {
@@ -430,45 +486,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void footer() {
-        space(32);
+        space(20);
         TextView footer = text("Lab Activity", 12, MUTED, false);
         footer.setGravity(Gravity.CENTER);
         content.addView(footer, new LinearLayout.LayoutParams(-1, -2));
-    }
-
-    /** Lightweight vector emblem; no network assets, bitmaps or perpetual animation. */
-    private final class PortalEmblem extends View {
-        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        PortalEmblem() { super(MainActivity.this); }
-
-        @Override protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-            float cx = getWidth() / 2f, cy = getHeight() / 2f;
-            float radius = Math.min(getWidth(), getHeight()) * 0.27f;
-            paint.setShader(new RadialGradient(cx, cy, radius * 1.85f,
-                    new int[]{0x35FFCF40, 0x00FFCF40}, null, Shader.TileMode.CLAMP));
-            canvas.drawCircle(cx, cy, radius * 1.85f, paint);
-            paint.setShader(null);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(dp(1));
-            paint.setColor(0x25FFCF40);
-            canvas.drawCircle(cx, cy, radius * 1.45f, paint);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setShader(new RadialGradient(cx - radius * 0.45f, cy - radius * 0.5f,
-                    radius * 1.65f, new int[]{0xFF647397, 0xFF243965, 0xFF101B31},
-                    new float[]{0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
-            canvas.drawCircle(cx, cy, radius, paint);
-            paint.setShader(null);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setColor(YELLOW);
-            paint.setStrokeWidth(dp(1));
-            canvas.drawCircle(cx, cy, radius, paint);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-            paint.setTextSize(dp(23));
-            paint.setTextAlign(Paint.Align.CENTER);
-            canvas.drawText("NU", cx, cy - (paint.ascent() + paint.descent()) / 2f, paint);
-        }
     }
 
     private String value(TextInputEditText edit) {

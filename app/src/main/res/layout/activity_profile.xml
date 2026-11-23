@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FCFDFD"
+    android:fillViewport="true"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="26dp">
+
+        <TextView
+            style="@style/Widget.StudentInfoApp.ProfileLabel"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:text="@string/profile_portal"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/Widget.StudentInfoApp.ProfileValue"
+            android:layout_marginTop="24dp"
+            android:text="@string/profile_title"
+            android:textSize="34sp" />
+
+        <TextView
+            style="@style/Widget.StudentInfoApp.ProfileLabel"
+            android:layout_marginTop="8dp"
+            android:text="@string/profile_description"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            style="@style/Widget.StudentInfoApp.ProfileCard"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                style="@style/Widget.StudentInfoApp.ProfileLabel"
+                android:text="@string/profile_student_name" />
+
+            <TextView
+                android:id="@+id/profileName"
+                style="@style/Widget.StudentInfoApp.ProfileValue"
+                android:layout_marginTop="6dp"
+                android:textSize="26sp"
+                tools:text="Jon Beltran" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/Widget.StudentInfoApp.ProfileValue"
+            android:layout_marginTop="24dp"
+            android:text="@string/profile_academics"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            style="@style/Widget.StudentInfoApp.ProfileCard"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                style="@style/Widget.StudentInfoApp.ProfileLabel"
+                android:text="@string/profile_student_number" />
+
+            <TextView
+                android:id="@+id/profileNumber"
+                style="@style/Widget.StudentInfoApp.ProfileValue"
+                android:layout_marginTop="6dp"
+                tools:text="2024-100001" />
+
+            <View style="@style/Widget.StudentInfoApp.ProfileDivider" />
+
+            <TextView
+                style="@style/Widget.StudentInfoApp.ProfileLabel"
+                android:text="@string/profile_program" />
+
+            <TextView
+                android:id="@+id/profileProgram"
+                style="@style/Widget.StudentInfoApp.ProfileValue"
+                android:layout_marginTop="6dp"
+                tools:text="BSCS-ML" />
+
+            <View style="@style/Widget.StudentInfoApp.ProfileDivider" />
+
+            <TextView
+                style="@style/Widget.StudentInfoApp.ProfileLabel"
+                android:text="@string/profile_year" />
+
+            <TextView
+                android:id="@+id/profileYear"
+                style="@style/Widget.StudentInfoApp.ProfileValue"
+                android:layout_marginTop="6dp"
+                tools:text="3rd Year" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/profileSignOut"
+            style="@style/Widget.StudentInfoApp.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/profile_sign_out" />
+
+        <TextView
+            style="@style/Widget.StudentInfoApp.ProfileLabel"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="@string/profile_footer"
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>
