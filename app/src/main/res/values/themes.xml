@@ -1,0 +1,12 @@
+<resources>
+    <style name="Base.Theme.StudentInfoApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#1C316E</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#FFCF40</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#F8F9FC</item>
+        <item name="android:colorAccent">#1C316E</item>
+    </style>
+    <style name="Theme.StudentInfoApp" parent="Base.Theme.StudentInfoApp" />
+</resources>

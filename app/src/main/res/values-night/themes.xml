@@ -1,0 +1,4 @@
+<resources>
+    <!-- Keep the intentional blue-and-gold light palette in system dark mode. -->
+    <style name="Theme.StudentInfoApp" parent="Base.Theme.StudentInfoApp" />
+</resources>
