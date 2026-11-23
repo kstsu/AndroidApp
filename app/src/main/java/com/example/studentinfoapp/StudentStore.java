@@ -21,8 +21,9 @@ final class StudentStore {
 
     StudentStore(Context context) {
         prefs = context.getSharedPreferences("student_accounts", Context.MODE_PRIVATE);
-        if (!exists("2024-100001")) {
-            save("2024-100001", "Alexandra Reyes", "BSCS-ML", "2nd Year", "Student@123");
+        if (!prefs.getBoolean("sample_jon_v1", false) || !exists("2024-100001")) {
+            save("2024-100001", "Jon Beltran", "BSCS-ML", "3rd Year", "Student@123");
+            prefs.edit().putBoolean("sample_jon_v1", true).apply();
         }
     }
 

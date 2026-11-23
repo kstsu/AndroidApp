@@ -2,6 +2,10 @@ package com.example.studentinfoapp;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -14,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,9 +35,11 @@ import com.google.android.material.textfield.TextInputLayout;
 public class MainActivity extends AppCompatActivity {
     private static final int BLUE = Color.rgb(28, 49, 110);
     private static final int YELLOW = Color.rgb(255, 207, 64);
-    private static final int INK = Color.rgb(28, 37, 57);
-    private static final int MUTED = Color.rgb(108, 116, 133);
-    private static final int CANVAS = Color.rgb(247, 246, 242);
+    private static final int INK = Color.rgb(242, 245, 252);
+    private static final int MUTED = Color.rgb(169, 180, 200);
+    private static final int CANVAS = Color.rgb(9, 15, 28);
+    private static final int SURFACE = Color.rgb(15, 24, 41);
+    private static final int BORDER = Color.rgb(54, 68, 90);
     private StudentStore store;
     private LinearLayout content;
     private TextView message;
@@ -62,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
     private void page() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(CANVAS);
+        GradientDrawable backdrop = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[]{Color.rgb(23, 35, 56), CANVAS, CANVAS});
+        root.setBackground(backdrop);
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
                     | WindowInsetsCompat.Type.ime());
@@ -73,23 +82,33 @@ public class MainActivity extends AppCompatActivity {
         scroll.setFillViewport(true);
         content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(24), dp(16), dp(24), dp(28));
-        scroll.addView(content, new ScrollView.LayoutParams(-1, -2));
+        content.setPadding(dp(24), dp(20), dp(24), dp(28));
+        // Constrain the form on tablets without fixing its height or clipping larger text.
+        android.widget.FrameLayout frame = new android.widget.FrameLayout(this);
+        final LinearLayout pageColumn = content;
+        frame.addView(content, new android.widget.FrameLayout.LayoutParams(-1, -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL));
+        frame.addOnLayoutChangeListener((view, l, t, r, b, ol, ot, or, ob) -> {
+            int width = Math.min(r - l, dp(520));
+            if (pageColumn.getLayoutParams().width != width) {
+                android.view.ViewGroup.LayoutParams params = pageColumn.getLayoutParams();
+                params.width = width;
+                pageColumn.setLayoutParams(params);
+            }
+        });
+        scroll.addView(frame, new ScrollView.LayoutParams(-1, -2));
         root.addView(scroll, new LinearLayout.LayoutParams(-1, -1));
         setContentView(root);
-        ViewCompat.getWindowInsetsController(root).setAppearanceLightStatusBars(true);
-        ViewCompat.getWindowInsetsController(root).setAppearanceLightNavigationBars(true);
+        ViewCompat.getWindowInsetsController(root).setAppearanceLightStatusBars(false);
+        ViewCompat.getWindowInsetsController(root).setAppearanceLightNavigationBars(false);
 
         LinearLayout brand = new LinearLayout(this);
         brand.setOrientation(LinearLayout.VERTICAL);
         brand.setGravity(Gravity.CENTER);
-        TextView mark = text("NU", 24, BLUE, true);
-        mark.setGravity(Gravity.CENTER);
-        mark.setLetterSpacing(-0.04f);
-        mark.setBackground(surface(YELLOW, 12, YELLOW));
-        brand.addView(mark, new LinearLayout.LayoutParams(dp(56), dp(56)));
-        addGap(brand, 12);
-        TextView name = text("Student Portal", 18, BLUE, true);
+        View emblem = new PortalEmblem();
+        emblem.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        brand.addView(emblem, new LinearLayout.LayoutParams(dp(152), dp(132)));
+        TextView name = text("STUDENT PORTAL", 12, MUTED, true);
+        name.setLetterSpacing(0.16f);
         name.setGravity(Gravity.CENTER);
         brand.addView(name);
         content.addView(brand, new LinearLayout.LayoutParams(-1, -2));
@@ -97,39 +116,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void heading(String eyebrow, String title, String subtitle) {
-        TextView section = text(eyebrow, 12, BLUE, true);
-        section.setLetterSpacing(0.06f);
-        content.addView(section);
+        TextView section = text(eyebrow, 12, MUTED, true);
+        section.setLetterSpacing(0.04f);
+        section.setGravity(Gravity.CENTER);
+        content.addView(section, new LinearLayout.LayoutParams(-1, -2));
         space(10);
-        TextView display = text(title, 38, BLUE, false);
-        display.setTypeface(Typeface.create("serif", Typeface.NORMAL));
-        display.setLetterSpacing(-0.035f);
+        TextView display = text(title, 30, INK, true);
+        display.setGravity(Gravity.CENTER);
+        display.setLetterSpacing(-0.02f);
         ViewCompat.setAccessibilityHeading(display, true);
-        content.addView(display);
+        content.addView(display, new LinearLayout.LayoutParams(-1, -2));
         space(8);
-        content.addView(text(subtitle, 16, MUTED, false));
+        TextView summary = text(subtitle, 16, MUTED, false);
+        summary.setGravity(Gravity.CENTER);
+        content.addView(summary, new LinearLayout.LayoutParams(-1, -2));
         space(28);
     }
 
     private void showLogin() {
         registering = false;
         page();
-        TextView title = text("Welcome back", 30, BLUE, true);
+        TextView title = text("Welcome back", 30, INK, true);
         title.setGravity(Gravity.CENTER);
         ViewCompat.setAccessibilityHeading(title, true);
         content.addView(title, new LinearLayout.LayoutParams(-1, -2));
         space(8);
-        TextView description = text("Sign in to your student account.", 16, MUTED, false);
+        TextView description = text("Access your student profile and academic details.", 16, MUTED, false);
         description.setGravity(Gravity.CENTER);
         content.addView(description, new LinearLayout.LayoutParams(-1, -2));
         space(28);
         LinearLayout pageContent = content;
-        LinearLayout form = panel();
-        form.setBackground(surface(Color.WHITE, 16, Color.rgb(230, 231, 235)));
+        LinearLayout form = new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);
+        form.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         pageContent.addView(form);
         content = form;
         TextInputEditText number = field("Student number", false, "2024-100001");
-        TextInputEditText password = field("Password", true, null);
+        TextInputEditText password = field("Password", true, "Enter your password");
         password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
         status();
         button("Sign in", true, v -> {
@@ -157,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         button("New student? Create an account", false, v -> showRegister());
         space(20);
         LinearLayout demo = panel();
-        demo.addView(text("Try a sample account", 16, BLUE, true));
+        demo.addView(text("Just exploring?", 16, INK, true));
         addGap(demo, 8);
         demo.addView(text("Student number: 2024-100001\nPassword: Student@123", 13, MUTED, false));
         MaterialButton fill = makeButton("Use sample credentials", false);
@@ -178,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
         page();
         button("Back to sign in", false, v -> showLogin());
         space(16);
-        heading("CREATE YOUR RECORD", "Make it yours.",
-                "Create an account with your student details.");
-        content.addView(text("Student details / All fields required", 14, BLUE, true));
+        heading("REGISTRATION", "Create an account",
+                "Enter your student information to get started.");
+        content.addView(text("Student details / All fields required", 14, INK, true));
         space(20);
         TextInputEditText name = field("Student name", false, "Full name");
         name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
@@ -189,16 +212,22 @@ public class MainActivity extends AppCompatActivity {
         program.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
         TextInputLayout yearLayout = inputLayout("Year level");
         yearLayout.setEndIconMode(TextInputLayout.END_ICON_DROPDOWN_MENU);
-        AutoCompleteTextView year = new AutoCompleteTextView(this);
+        AutoCompleteTextView year = new MaterialAutoCompleteTextView(this);
+        year.setHint("Select your year level");
+        year.setMinimumHeight(dp(56));
+        year.setPadding(dp(16), dp(16), dp(16), dp(16));
         year.setInputType(InputType.TYPE_NULL);
         year.setTextColor(INK);
         year.setTextSize(16);
         year.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year"}));
         yearLayout.addView(year, new LinearLayout.LayoutParams(-1, -2));
+        yearLayout.setHintEnabled(false);
+        year.setId(View.generateViewId());
+        ((TextView) yearLayout.getTag()).setLabelFor(year.getId());
         content.addView(yearLayout);
         space(16);
-        content.addView(text("Account security", 20, BLUE, true));
+        content.addView(text("Account security", 20, INK, true));
         space(8);
         content.addView(text("Choose a password with at least 8 characters.", 14, MUTED, false));
         space(20);
@@ -235,11 +264,11 @@ public class MainActivity extends AppCompatActivity {
     private void showProfile(StudentStore.Student student) {
         registering = false;
         page();
-        heading("MY STUDENT RECORD", "Hello, " + student.name.split(" ")[0] + ".",
-                "Your information, all in one place.");
+        heading("STUDENT OVERVIEW", "My profile",
+                "View your student information and academic record.");
         LinearLayout identity = panel();
-        identity.setBackground(surface(BLUE, 12, BLUE));
-        identity.addView(text("NU / STUDENT PROFILE", 12, YELLOW, true));
+        identity.setBackground(surface(Color.rgb(25, 42, 77), 20, BORDER));
+        identity.addView(text("STUDENT PROFILE", 12, YELLOW, true));
         addGap(identity, 12);
         identity.addView(text(student.name, 28, Color.WHITE, true));
         addGap(identity, 8);
@@ -274,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         if (divider) {
             addGap(parent, 18);
             View line = new View(this);
-            line.setBackgroundColor(Color.rgb(232, 235, 241));
+            line.setBackgroundColor(BORDER);
             parent.addView(line, new LinearLayout.LayoutParams(-1, dp(1)));
             addGap(parent, 18);
         }
@@ -283,11 +312,18 @@ public class MainActivity extends AppCompatActivity {
     private TextInputLayout inputLayout(String label) {
         TextInputLayout layout = new TextInputLayout(this, null,
                 com.google.android.material.R.attr.textInputOutlinedStyle);
-        layout.setHint(label);
+        TextView caption = text(label, 15, INK, false);
+        content.addView(caption);
+        space(8);
         layout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
-        layout.setBoxCornerRadii(dp(8), dp(8), dp(8), dp(8));
-        layout.setBoxBackgroundColor(Color.WHITE);
-        layout.setBoxStrokeColor(BLUE);
+        layout.setBoxCornerRadii(dp(14), dp(14), dp(14), dp(14));
+        layout.setBoxBackgroundColor(SURFACE);
+        layout.setBoxStrokeColorStateList(new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_focused}, new int[]{}},
+                new int[]{YELLOW, BORDER}));
+        layout.setEndIconTintList(ColorStateList.valueOf(MUTED));
+        layout.setErrorTextColor(ColorStateList.valueOf(0xFFFFB4AB));
+        layout.setTag(caption);
         layout.setDefaultHintTextColor(ColorStateList.valueOf(MUTED));
         layout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         return layout;
@@ -301,19 +337,23 @@ public class MainActivity extends AppCompatActivity {
         edit.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT);
         edit.setTextSize(16);
         edit.setTextColor(INK);
+        edit.setHintTextColor(ColorStateList.valueOf(MUTED));
+        edit.setPadding(dp(16), dp(16), dp(16), dp(16));
         edit.setInputType(InputType.TYPE_CLASS_TEXT | (password
                 ? InputType.TYPE_TEXT_VARIATION_PASSWORD : InputType.TYPE_TEXT_VARIATION_NORMAL));
         edit.setId(View.generateViewId());
-        if (placeholder != null) layout.setPlaceholderText(placeholder);
+        ((TextView) layout.getTag()).setLabelFor(edit.getId());
+        if (placeholder != null) edit.setHint(placeholder);
         if (password) layout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
         layout.addView(edit, new LinearLayout.LayoutParams(-1, -2));
+        layout.setHintEnabled(false);
         content.addView(layout);
         space(16);
         return edit;
     }
 
     private void status() {
-        message = text("", 13, Color.rgb(165, 39, 39), false);
+        message = text("", 14, 0xFFFFB4AB, false);
         message.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         message.setVisibility(View.GONE);
         content.addView(message);
@@ -326,7 +366,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fieldError(TextInputEditText field, String explanation) {
-        field.setError(explanation);
+        if (field.getParent().getParent() instanceof TextInputLayout) {
+            ((TextInputLayout) field.getParent().getParent()).setError(explanation);
+        } else field.setError(explanation);
         field.requestFocus();
         field.post(() -> field.requestRectangleOnScreen(
                 new android.graphics.Rect(0, 0, field.getWidth(), field.getHeight()), false));
@@ -338,12 +380,16 @@ public class MainActivity extends AppCompatActivity {
         button.setTextSize(16);
         button.setAllCaps(false);
         button.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        button.setCornerRadius(dp(8));
+        button.setCornerRadius(dp(28));
         button.setElevation(0);
         button.setStateListAnimator(null);
-        button.setBackgroundTintList(ColorStateList.valueOf(primary ? BLUE : Color.TRANSPARENT));
-        button.setTextColor(primary ? Color.WHITE : BLUE);
-        button.setRippleColor(ColorStateList.valueOf(primary ? 0x33FFCF40 : 0x181C316E));
+        button.setBackgroundTintList(ColorStateList.valueOf(primary ? YELLOW : Color.TRANSPARENT));
+        button.setTextColor(primary ? CANVAS : INK);
+        button.setRippleColor(ColorStateList.valueOf(0x331C316E));
+        if (!primary) {
+            button.setStrokeWidth(dp(1));
+            button.setStrokeColor(ColorStateList.valueOf(BORDER));
+        }
         button.setMinimumHeight(dp(54));
         button.setInsetTop(0);
         button.setInsetBottom(0);
@@ -360,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(20), dp(24), dp(20), dp(24));
-        panel.setBackground(surface(Color.rgb(239, 238, 232), 10, Color.rgb(239, 238, 232)));
+        panel.setBackground(surface(SURFACE, 18, BORDER));
         panel.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         return panel;
     }
@@ -390,10 +436,39 @@ public class MainActivity extends AppCompatActivity {
         content.addView(footer, new LinearLayout.LayoutParams(-1, -2));
     }
 
-    private void rule(LinearLayout parent) {
-        View line = new View(this);
-        line.setBackgroundColor(0x331C316E);
-        parent.addView(line, new LinearLayout.LayoutParams(-1, dp(1)));
+    /** Lightweight vector emblem; no network assets, bitmaps or perpetual animation. */
+    private final class PortalEmblem extends View {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        PortalEmblem() { super(MainActivity.this); }
+
+        @Override protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float cx = getWidth() / 2f, cy = getHeight() / 2f;
+            float radius = Math.min(getWidth(), getHeight()) * 0.27f;
+            paint.setShader(new RadialGradient(cx, cy, radius * 1.85f,
+                    new int[]{0x35FFCF40, 0x00FFCF40}, null, Shader.TileMode.CLAMP));
+            canvas.drawCircle(cx, cy, radius * 1.85f, paint);
+            paint.setShader(null);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(dp(1));
+            paint.setColor(0x25FFCF40);
+            canvas.drawCircle(cx, cy, radius * 1.45f, paint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setShader(new RadialGradient(cx - radius * 0.45f, cy - radius * 0.5f,
+                    radius * 1.65f, new int[]{0xFF647397, 0xFF243965, 0xFF101B31},
+                    new float[]{0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
+            canvas.drawCircle(cx, cy, radius, paint);
+            paint.setShader(null);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setColor(YELLOW);
+            paint.setStrokeWidth(dp(1));
+            canvas.drawCircle(cx, cy, radius, paint);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+            paint.setTextSize(dp(23));
+            paint.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText("NU", cx, cy - (paint.ascent() + paint.descent()) / 2f, paint);
+        }
     }
 
     private String value(TextInputEditText edit) {

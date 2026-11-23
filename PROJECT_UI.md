@@ -1,20 +1,21 @@
-# Student portal visual direction
+# Student portal design
 
-Native Java Android, retaining the existing login, registration and local student store.
+## Reference and scope
+The supplied dark authentication-screen reference supersedes the previous light design. The layout is adapted to the existing student portal, retaining navy and yellow rather than switching to the reference's lime green. Authentication, registration, profile fields and local persistence are unchanged. No simulated social sign-in, email recovery or biometric actions are included.
 
-The requested Gibous reference informs editorial hierarchy, small catalog-style section labels, understated surfaces and crisp rectangular controls. It does not introduce shopping features, copy the store's branding, or replace the NU-inspired navy and gold identity.
+## Visual system
+- Canvas: deep navy `#090F1C`, with a restrained navy tint at the top.
+- Surface: `#0F1829`; border: `#36445A`.
+- Primary text: `#F2F5FC`; secondary: `#A9B4C8`; action: `#FFCF40`.
+- Static vector NU orb with a fine gold orbit replaces the square logo. It needs no image download or animation.
+- Centered titles, external input labels, 14dp outlined inputs, 54dp rounded gold primary buttons.
+- Login has no enclosing card. Secondary navigation stays separate from the primary action.
+- Registration and profile share the same dark visual language; student details remain scrollable.
+- Horizontal gutters: 24dp; maximum column width: 520dp for tablets.
+- Footer remains exactly `Lab Activity`.
 
-- Canvas: warm paper `#F7F6F2`; navy `#1C316E`; gold `#FFCF40`.
-- Large serif screen titles contrast with native sans-serif controls.
-- Shared 24dp horizontal content gutter and 54dp primary actions.
-- Text floor: 12sp; inputs and action labels: 16sp.
-- Profile identity uses navy with white text and gold academic metadata.
-- Primary actions remain explicit: sign in, create account, sign out.
-- Input focus, password visibility, keyboard resizing and scroll access remain native.
-- Header: centered yellow NU monogram with a simple “Student Portal” label. No editorial wordmark or utility strip.
-- Login: centered welcome title, white form surface, student number and password fields, one navy sign-in action, separate registration link and sample-account helper. Keyboard Done submits the form.
-- Modern refinement: 8dp controls, 10dp neutral panels, 12dp student identity card, text-only secondary actions. No decorative motion.
-- Footer copy is exactly “Lab Activity”, without the previous disclaimer or divider. The README retains the demo context.
-- Password validation points to the affected field; invalid credentials use a non-specific error.
+## Interaction and accessibility
+Native password toggles and year-level dropdown. White status-bar icons, explicit form labels, visible gold input focus, light-red error text, at least 16sp input text and 54dp actions. IME Done submits login. System-bar and keyboard insets are respected. Larger text can wrap and pages scroll; no fixed full-screen content height.
 
-Relevant source guidelines: the attached `skill2/READFIRST.md` and `skill2/frontend/FRONTEND.md`. Browser-specific audit tooling does not apply to these native Android views. Visual/device testing still requires a connected emulator or phone.
+## Verification
+Build, unit tests and lint run with Android Studio's installed JDK. Native instrumentation tests cover account persistence and login/registration view creation and navigation. These are not substitutes for full accessibility or multi-device testing.

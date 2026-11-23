@@ -17,7 +17,8 @@ public class StudentStoreTest {
         StudentStore.Student sample = store.login("2024-100001", "Student@123");
         assertNotNull(sample);
         assertEquals("BSCS-ML", sample.program);
-        assertEquals("2nd Year", sample.year);
+        assertEquals("Jon Beltran", sample.name);
+        assertEquals("3rd Year", sample.year);
         store.logout();
         assertNull(store.currentStudent());
     }
