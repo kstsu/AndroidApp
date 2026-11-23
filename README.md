@@ -1,6 +1,6 @@
 # Student Information Application
 
-A native Java Android demo with a minimal National University-inspired navy blue and yellow interface. It is not an official NU application.
+A native Java Android Application with National University-inspired navy blue and yellow interface. It is NOT an official NU application.
 
 ## Screens
 - **Sign in:** student number and password, password visibility toggle, and sample credential helper.
@@ -23,8 +23,3 @@ Open this project in Android Studio, sync Gradle, then run the `app` configurati
 ```
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
-
-## Demo storage and security
-Accounts and the current session are stored in app-private SharedPreferences. Passwords use PBKDF2 with individual random salts, not plaintext. Registration checks required fields, duplicate student numbers, minimum password length, and matching confirmation. Student numbers are case-insensitive.
-
-This is an offline teaching/demo application, not production university authentication. Clearing app data or uninstalling removes registered accounts. A production system needs server-side authentication, authorization, secure token management, recovery, rate limiting, and a university-backed student database. The published sample password must not be used in production.
