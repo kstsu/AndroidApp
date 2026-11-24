@@ -1,7 +1,7 @@
 <resources>
     <string name="profile_portal">STUDENT PORTAL</string>
     <string name="profile_title">My profile</string>
-    <string name="profile_description">View your student information and academic record.</string>
+    <string name="profile_description">Manage your student information and check your class schedule.</string>
     <string name="profile_student_name">Student name</string>
     <string name="profile_academics">Academic information</string>
     <string name="profile_student_number">Student number</string>
@@ -9,6 +9,55 @@
     <string name="profile_year">Year level</string>
     <string name="profile_sign_out">Sign out</string>
     <string name="profile_footer">Lab Activity</string>
+    <string name="profile_edit_title">Edit profile</string>
+    <string name="profile_edit_description">Update your name, academic program, and year level.</string>
+    <string name="profile_edit_number_note">Your student number can’t be changed.</string>
+    <string name="profile_edit_save">Save changes</string>
+    <string name="profile_edit_cancel">Cancel</string>
+    <string name="profile_edit_name_required">Enter your name.</string>
+    <string name="profile_edit_program_required">Enter your academic program.</string>
+    <string name="profile_edit_year_required">Choose your year level.</string>
+    <string name="profile_edit_failed">Couldn’t save your changes. Please sign in again.</string>
+    <string name="profile_edit_saved">Profile updated.</string>
+    <string name="profile_schedule_title">Class schedule</string>
+    <string name="profile_schedule_sample">Sample weekly timetable</string>
+    <string name="profile_schedule_day">Day of the week</string>
+    <string name="profile_schedule_free">No classes</string>
+    <plurals name="profile_schedule_count">
+        <item quantity="one">%d class</item>
+        <item quantity="other">%d classes</item>
+    </plurals>
+    <string-array name="profile_year_levels">
+        <item>1st Year</item>
+        <item>2nd Year</item>
+        <item>3rd Year</item>
+        <item>4th Year</item>
+        <item>5th Year</item>
+        <item>6th Year</item>
+    </string-array>
+    <string-array name="schedule_days">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string name="schedule_mobile_development">Mobile App Development</string>
+    <string name="schedule_data_structures">Data Structures</string>
+    <string name="schedule_databases">Database Systems</string>
+    <string name="schedule_interaction_design">Interaction Design</string>
+    <string name="schedule_discrete_math">Discrete Mathematics</string>
+    <string name="schedule_networking">Computer Networks</string>
+    <string name="schedule_communication">Technical Communication</string>
+    <string name="schedule_ethics">Professional Ethics</string>
+    <string name="schedule_slot_one_lab">8:00–9:30 AM · Lab 204</string>
+    <string name="schedule_slot_one_room">8:00–9:30 AM · Room 309</string>
+    <string name="schedule_slot_two">9:45–11:15 AM · Room 312</string>
+    <string name="schedule_slot_two_lab">9:45–11:15 AM · Lab 206</string>
+    <string name="schedule_slot_three">1:00–2:30 PM · Room 308</string>
+    <string name="schedule_slot_four">2:45–4:15 PM · Room 306</string>
 
     <style name="Widget.StudentInfoApp.ProfileLabel" parent="">
         <item name="android:layout_width">match_parent</item>

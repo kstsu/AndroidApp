@@ -6,9 +6,9 @@
         <item name="boxCornerRadiusTopEnd">24dp</item>
         <item name="boxCornerRadiusBottomStart">24dp</item>
         <item name="boxCornerRadiusBottomEnd">24dp</item>
-        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
-        <item name="boxStrokeColor">#D9E2E8</item>
+        <item name="boxStrokeColor">@color/portal_input_stroke</item>
         <item name="hintTextColor">#526673</item>
     </style>
 

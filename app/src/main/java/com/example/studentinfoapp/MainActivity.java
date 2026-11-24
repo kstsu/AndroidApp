@@ -8,13 +8,17 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -27,6 +31,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.List;
 
 /** A self-contained, offline student portal demo. */
 public class MainActivity extends AppCompatActivity {
@@ -41,25 +47,33 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout content;
     private TextView message;
     private boolean registering;
+    private boolean editingProfile;
+    private int scheduleDay;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         WindowCompat.enableEdgeToEdge(getWindow());
         store = new StudentStore(this);
+        scheduleDay = state == null ? WeeklySchedule.today()
+                : state.getInt("scheduleDay", WeeklySchedule.today());
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
-                if (registering) showLogin();
+                if (editingProfile) leaveEditProfile();
+                else if (registering) showLogin();
                 else { setEnabled(false); getOnBackPressedDispatcher().onBackPressed(); }
             }
         });
         StudentStore.Student student = store.currentStudent();
-        if (student != null) showProfile(student);
+        if (student != null && state != null && state.getBoolean("editingProfile")) showEditProfile(student);
+        else if (student != null) showProfile(student);
         else if (state != null && state.getBoolean("registering")) showRegister();
         else showLogin();
     }
 
     @Override protected void onSaveInstanceState(Bundle out) {
         out.putBoolean("registering", registering);
+        out.putBoolean("editingProfile", editingProfile);
+        out.putInt("scheduleDay", scheduleDay);
         super.onSaveInstanceState(out);
     }
 
@@ -139,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showLogin() {
         registering = false;
+        editingProfile = false;
+        scheduleDay = WeeklySchedule.today();
         openLayout(R.layout.activity_login);
         TextInputEditText number = findViewById(R.id.loginStudentNumber);
         TextInputEditText password = findViewById(R.id.loginPassword);
@@ -170,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         TextInputEditText password = findViewById(R.id.registerPassword);
         TextInputEditText confirm = findViewById(R.id.confirmPassword);
         MaterialAutoCompleteTextView year = findViewById(R.id.yearLevel);
-        year.setSimpleItems(new String[]{"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year"});
+        year.setSimpleItems(R.array.profile_year_levels);
         TextInputLayout error = findViewById(R.id.confirmPasswordLayout);
         findViewById(R.id.saveStudentButton).setOnClickListener(view -> {
             hideKeyboard();
@@ -312,15 +328,97 @@ public class MainActivity extends AppCompatActivity {
 
     private void showProfile(StudentStore.Student student) {
         registering = false;
+        editingProfile = false;
         openLayout(R.layout.activity_profile);
         ((TextView) findViewById(R.id.profileName)).setText(student.name);
         ((TextView) findViewById(R.id.profileNumber)).setText(student.number);
         ((TextView) findViewById(R.id.profileProgram)).setText(student.program);
         ((TextView) findViewById(R.id.profileYear)).setText(student.year);
+        findViewById(R.id.profileEdit).setOnClickListener(view -> showEditProfile(student));
+        Spinner day = findViewById(R.id.profileScheduleDay);
+        day.setSelection(WeeklySchedule.positionOf(scheduleDay));
+        renderSchedule();
+        day.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int selected = WeeklySchedule.dayAt(position);
+                if (selected == scheduleDay) return;
+                scheduleDay = selected;
+                renderSchedule();
+            }
+
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
         findViewById(R.id.profileSignOut).setOnClickListener(view -> {
             store.logout();
             showLogin();
         });
+    }
+
+    private void renderSchedule() {
+        List<WeeklySchedule.Lesson> lessons = WeeklySchedule.forDay(scheduleDay);
+        TextView status = findViewById(R.id.profileScheduleStatus);
+        status.setText(lessons.isEmpty() ? getString(R.string.profile_schedule_free)
+                : getResources().getQuantityString(R.plurals.profile_schedule_count,
+                        lessons.size(), lessons.size()));
+        LinearLayout list = findViewById(R.id.profileScheduleLessons);
+        list.removeAllViews();
+        for (WeeklySchedule.Lesson lesson : lessons) {
+            View row = getLayoutInflater().inflate(R.layout.item_schedule_lesson, list, false);
+            ((TextView) row.findViewById(R.id.scheduleLessonSubject)).setText(lesson.subject);
+            ((TextView) row.findViewById(R.id.scheduleLessonDetails)).setText(lesson.details);
+            list.addView(row);
+        }
+    }
+
+    private void showEditProfile(StudentStore.Student student) {
+        editingProfile = true;
+        openLayout(R.layout.activity_edit_profile);
+        findViewById(R.id.editProfileRoot).requestFocus();
+        ((TextView) findViewById(R.id.editProfileNumber)).setText(student.number);
+        TextInputEditText name = findViewById(R.id.editProfileName);
+        TextInputEditText program = findViewById(R.id.editProfileProgram);
+        MaterialAutoCompleteTextView year = findViewById(R.id.editProfileYear);
+        TextInputLayout nameLayout = findViewById(R.id.editProfileNameLayout);
+        TextInputLayout programLayout = findViewById(R.id.editProfileProgramLayout);
+        TextInputLayout yearLayout = findViewById(R.id.editProfileYearLayout);
+        name.setText(student.name);
+        program.setText(student.program);
+        year.setSimpleItems(R.array.profile_year_levels);
+        year.setText(student.year, false);
+        View save = findViewById(R.id.editProfileSave);
+        save.setOnClickListener(view -> {
+            String fullName = value(name);
+            String academicProgram = value(program);
+            String yearLevel = year.getText().toString();
+            nameLayout.setError(fullName.isEmpty() ? getString(R.string.profile_edit_name_required) : null);
+            programLayout.setError(academicProgram.isEmpty() ? getString(R.string.profile_edit_program_required) : null);
+            yearLayout.setError(yearLevel.isEmpty() ? getString(R.string.profile_edit_year_required) : null);
+            if (fullName.isEmpty()) name.requestFocus();
+            else if (academicProgram.isEmpty()) program.requestFocus();
+            else if (yearLevel.isEmpty()) year.requestFocus();
+            else {
+                hideKeyboard();
+                StudentStore.Student updated = store.updateCurrentProfile(fullName, academicProgram, yearLevel);
+                if (updated == null) {
+                    store.logout();
+                    showLogin();
+                    Toast.makeText(this, R.string.profile_edit_failed, Toast.LENGTH_LONG).show();
+                } else {
+                    showProfile(updated);
+                    Toast.makeText(this, R.string.profile_edit_saved, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        program.setOnEditorActionListener((view, action, event) ->
+                action == EditorInfo.IME_ACTION_DONE && save.performClick());
+        findViewById(R.id.editProfileCancel).setOnClickListener(view -> leaveEditProfile());
+    }
+
+    private void leaveEditProfile() {
+        hideKeyboard();
+        StudentStore.Student student = store.currentStudent();
+        if (student == null) showLogin();
+        else showProfile(student);
     }
 
     private void legacyProfileLayout(StudentStore.Student student) {

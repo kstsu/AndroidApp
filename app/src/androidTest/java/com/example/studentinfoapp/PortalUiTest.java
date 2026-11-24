@@ -8,7 +8,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
+import com.google.android.material.textfield.TextInputEditText;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
@@ -31,6 +33,47 @@ public class PortalUiTest {
                 assertNotNull(find(root, "Welcome back"));
             });
         } finally { instrumentation.runOnMainSync(activity::finish); }
+    }
+
+    @Test public void profileEditsCanBeCancelledOrSavedAndDayPickerUpdatesSchedule() {
+        android.app.Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        android.content.Context context = instrumentation.getTargetContext();
+        String number = "ui-edit-" + System.currentTimeMillis();
+        new StudentStore(context).register(number, "Original Name", "BSCS", "1st Year", "TestPass123");
+        Activity activity = instrumentation.startActivitySync(new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        try {
+            instrumentation.runOnMainSync(() -> {
+                assertTrue(activity.findViewById(R.id.profileEdit).performClick());
+                TextInputEditText name = activity.findViewById(R.id.editProfileName);
+                assertEquals("Original Name", name.getText().toString());
+                TextView readOnlyNumber = activity.findViewById(R.id.editProfileNumber);
+                assertEquals(number, readOnlyNumber.getText().toString());
+                name.setText("Unsaved Name");
+                assertTrue(activity.findViewById(R.id.editProfileCancel).performClick());
+                assertEquals("Original Name", ((TextView) activity.findViewById(R.id.profileName)).getText().toString());
+                assertTrue(activity.findViewById(R.id.profileEdit).performClick());
+                ((TextInputEditText) activity.findViewById(R.id.editProfileName)).setText("Updated Name");
+                assertTrue(activity.findViewById(R.id.editProfileSave).performClick());
+                assertEquals("Updated Name", ((TextView) activity.findViewById(R.id.profileName)).getText().toString());
+                ((Spinner) activity.findViewById(R.id.profileScheduleDay)).setSelection(2);
+            });
+            instrumentation.waitForIdleSync();
+            instrumentation.runOnMainSync(() -> {
+                TextView status = activity.findViewById(R.id.profileScheduleStatus);
+                assertEquals(activity.getString(R.string.profile_schedule_free), status.getText().toString());
+                ((Spinner) activity.findViewById(R.id.profileScheduleDay)).setSelection(0);
+            });
+            instrumentation.waitForIdleSync();
+            instrumentation.runOnMainSync(() -> {
+                ViewGroup lessons = activity.findViewById(R.id.profileScheduleLessons);
+                assertEquals(4, lessons.getChildCount());
+            });
+        } finally {
+            instrumentation.runOnMainSync(activity::finish);
+            context.getSharedPreferences("student_accounts", android.content.Context.MODE_PRIVATE).edit()
+                    .remove("student_" + number).remove("active_student").commit();
+        }
     }
 
     private View find(View view, String text) {
